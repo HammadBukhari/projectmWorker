@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 import 'package:projectmworker/model/app_messenger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginProvider {
+  FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+
   AppMessenger messenger;
   Future<bool> get isUserLoggedIn async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -13,6 +16,9 @@ class LoginProvider {
       messenger =
           await getMessengerFromEmail(prefs.getString("messengerId") ?? "");
       if (messenger == null) return false;
+      // update token
+      final token = await _firebaseMessaging.getToken();
+      uploadTokenToMessengerDoc(messenger.uid, token);
     }
     return status;
   }
@@ -32,6 +38,13 @@ class LoginProvider {
     prefs.setString('messengerId', messenger.uid);
     prefs.setBool('loginStat', true);
 
+    // upload token
+    final token = await _firebaseMessaging.getToken();
+    uploadTokenToMessengerDoc(messenger.uid, token);
+
+    // register to messenger topic
+    _firebaseMessaging.subscribeToTopic("messenger");
+
     return true;
   }
 
@@ -42,5 +55,13 @@ class LoginProvider {
         .get();
     if (!userDoc.exists) return null;
     return AppMessenger.fromMap(userDoc.data());
+  }
+
+  Future<void> uploadTokenToMessengerDoc(
+      String messengerEmail, String token) async {
+    await FirebaseFirestore.instance
+        .collection("messenger")
+        .doc(messengerEmail)
+        .update({"token": token});
   }
 }
