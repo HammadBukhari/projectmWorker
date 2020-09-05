@@ -24,7 +24,7 @@ class LoginProvider {
         .get();
     if (!userDoc.exists) return false;
 
-    if (userDoc.data()['password'].toString() != password) return false;
+    if (userDoc.data()['passcode'].toString() != password) return false;
 
     messenger = AppMessenger.fromMap(userDoc.data());
     // save user status and id
