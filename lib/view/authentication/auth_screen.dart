@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:projectmworker/shared/color.dart';
+import 'package:projectmworker/view/provider/OrderProvider.dart';
 
 import '../HomePage.dart';
 
@@ -173,6 +174,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     msg:
                                         "Incorrect email/password or internet connection issue");
                               } else {
+                                GetIt.I.registerSingleton(OrderProvider());
                                 Get.to(HomePage());
                               }
                             }

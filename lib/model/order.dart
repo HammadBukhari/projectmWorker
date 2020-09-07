@@ -1,7 +1,5 @@
 import 'dart:convert';
 
-import 'app_messenger.dart';
-
 
 enum OrderStatus {
   notStarted, // scheduled but there is some time left
@@ -15,11 +13,17 @@ enum OrderStatus {
 }
 
 class Order {
+  int userOrderNo;
   String orderId;
+  String messageDocId;
+  bool isNow;
   OrderStatus status;
   String userUid;
-  AppMessenger messenger;
-  String messengerName;
+
+  String messengerId;
+  double messengerLat;
+  double messengerLng;
+
   double rating;
   String instruction;
   String ratingComment;
@@ -32,12 +36,17 @@ class Order {
   int creationTime;
   int scheduledTime;
   int completedTime;
+  double fare;
   Order({
+    this.userOrderNo,
     this.orderId,
     this.status,
+    this.messageDocId,
+    this.isNow,
     this.userUid,
-    this.messenger,
-    this.messengerName,
+    this.messengerId,
+    this.messengerLat,
+    this.messengerLng,
     this.rating,
     this.instruction,
     this.ratingComment,
@@ -50,55 +59,20 @@ class Order {
     this.creationTime,
     this.scheduledTime,
     this.completedTime,
+    this.fare,
   });
-  
-
-  Order copyWith({
-    String orderId,
-    String userUid,
-    AppMessenger messenger,
-    String messengerName,
-    double rating,
-    String instruction,
-    String ratingComment,
-    double sourceLat,
-    double sourceLng,
-    String sourceLocationName,
-    double destLat,
-    double destlng,
-    String destLocationName,
-    int creationTime,
-    int scheduledTime,
-    int completedTime,
-  }) {
-    return Order(
-      orderId: orderId ?? this.orderId,
-      userUid: userUid ?? this.userUid,
-      messenger: messenger ?? this.messenger,
-      messengerName: messengerName ?? this.messengerName,
-      rating: rating ?? this.rating,
-      instruction: instruction ?? this.instruction,
-      ratingComment: ratingComment ?? this.ratingComment,
-      sourceLat: sourceLat ?? this.sourceLat,
-      sourceLng: sourceLng ?? this.sourceLng,
-      sourceLocationName: sourceLocationName ?? this.sourceLocationName,
-      destLat: destLat ?? this.destLat,
-      destlng: destlng ?? this.destlng,
-      destLocationName: destLocationName ?? this.destLocationName,
-      creationTime: creationTime ?? this.creationTime,
-      scheduledTime: scheduledTime ?? this.scheduledTime,
-      completedTime: completedTime ?? this.completedTime,
-    );
-  }
 
   Map<String, dynamic> toMap() {
-
     return {
+      'userOrderNo': userOrderNo,
       'orderId': orderId,
-      'orderStatus' : status.index,
+      'orderStatus': status.index,
+      'messageDocId': messageDocId,
+      'isNow': isNow,
       'userUid': userUid,
-      'messenger': messenger?.toMap(),
-      'messengerName': messengerName,
+      'messengerId': messengerId,
+      'messengerLat': messengerLat,
+      'messengerLng': messengerLng,
       'rating': rating,
       'instruction': instruction,
       'ratingComment': ratingComment,
@@ -111,18 +85,23 @@ class Order {
       'creationTime': creationTime,
       'scheduledTime': scheduledTime,
       'completedTime': completedTime,
+      'fare': fare,
     };
   }
 
   factory Order.fromMap(Map<String, dynamic> map) {
     if (map == null) return null;
-  
+
     return Order(
-      status: OrderStatus.values[map['orderStatus']],
+      userOrderNo: map['userOrderNo'],
       orderId: map['orderId'],
+      messageDocId: map['messageDocId'],
+      isNow: map['isNow'],
+      status: OrderStatus.values[map['orderStatus']],
       userUid: map['userUid'],
-      messenger: AppMessenger.fromMap(map['messenger']),
-      messengerName: map['messengerName'],
+      messengerId: map['messengerId'],
+      messengerLat: map['messengerLat'],
+      messengerLng: map['messengerLng'],
       rating: map['rating'],
       instruction: map['instruction'],
       ratingComment: map['ratingComment'],
@@ -135,6 +114,7 @@ class Order {
       creationTime: map['creationTime'],
       scheduledTime: map['scheduledTime'],
       completedTime: map['completedTime'],
+      fare: map['fare'],
     );
   }
 
@@ -144,49 +124,59 @@ class Order {
 
   @override
   String toString() {
-    return 'Order(orderId: $orderId, userUid: $userUid, messenger: $messenger, messengerName: $messengerName, rating: $rating, instruction: $instruction, ratingComment: $ratingComment, sourceLat: $sourceLat, sourceLng: $sourceLng, sourceLocationName: $sourceLocationName, destLat: $destLat, destlng: $destlng, destLocationName: $destLocationName, creationTime: $creationTime, scheduledTime: $scheduledTime, completedTime: $completedTime)';
+    return 'Order(userOrderNo: $userOrderNo, orderId: $orderId, messageDocId: $messageDocId, isNow: $isNow, userUid: $userUid, messengerId: $messengerId, messengerLat: $messengerLat, messengerLng: $messengerLng, rating: $rating, instruction: $instruction, ratingComment: $ratingComment, sourceLat: $sourceLat, sourceLng: $sourceLng, sourceLocationName: $sourceLocationName, destLat: $destLat, destlng: $destlng, destLocationName: $destLocationName, creationTime: $creationTime, scheduledTime: $scheduledTime, completedTime: $completedTime, fare: $fare)';
   }
 
   @override
   bool operator ==(Object o) {
     if (identical(this, o)) return true;
-  
+
     return o is Order &&
-      o.orderId == orderId &&
-      o.userUid == userUid &&
-      o.messenger == messenger &&
-      o.messengerName == messengerName &&
-      o.rating == rating &&
-      o.instruction == instruction &&
-      o.ratingComment == ratingComment &&
-      o.sourceLat == sourceLat &&
-      o.sourceLng == sourceLng &&
-      o.sourceLocationName == sourceLocationName &&
-      o.destLat == destLat &&
-      o.destlng == destlng &&
-      o.destLocationName == destLocationName &&
-      o.creationTime == creationTime &&
-      o.scheduledTime == scheduledTime &&
-      o.completedTime == completedTime;
+        o.userOrderNo == userOrderNo &&
+        o.orderId == orderId &&
+        o.messageDocId == messageDocId &&
+        o.isNow == isNow &&
+        o.userUid == userUid &&
+        o.messengerId == messengerId &&
+        o.messengerLat == messengerLat &&
+        o.messengerLng == messengerLng &&
+        o.rating == rating &&
+        o.instruction == instruction &&
+        o.ratingComment == ratingComment &&
+        o.sourceLat == sourceLat &&
+        o.sourceLng == sourceLng &&
+        o.sourceLocationName == sourceLocationName &&
+        o.destLat == destLat &&
+        o.destlng == destlng &&
+        o.destLocationName == destLocationName &&
+        o.creationTime == creationTime &&
+        o.scheduledTime == scheduledTime &&
+        o.completedTime == completedTime &&
+        o.fare == fare;
   }
 
   @override
   int get hashCode {
-    return orderId.hashCode ^
-      userUid.hashCode ^
-      messenger.hashCode ^
-      messengerName.hashCode ^
-      rating.hashCode ^
-      instruction.hashCode ^
-      ratingComment.hashCode ^
-      sourceLat.hashCode ^
-      sourceLng.hashCode ^
-      sourceLocationName.hashCode ^
-      destLat.hashCode ^
-      destlng.hashCode ^
-      destLocationName.hashCode ^
-      creationTime.hashCode ^
-      scheduledTime.hashCode ^
-      completedTime.hashCode;
+    return userOrderNo.hashCode ^
+        orderId.hashCode ^
+        messageDocId.hashCode ^
+        isNow.hashCode ^
+        userUid.hashCode ^
+        messengerId.hashCode ^
+        messengerLat.hashCode ^
+        messengerLng.hashCode ^
+        rating.hashCode ^
+        instruction.hashCode ^
+        ratingComment.hashCode ^
+        sourceLat.hashCode ^
+        sourceLng.hashCode ^
+        sourceLocationName.hashCode ^
+        destLat.hashCode ^
+        destlng.hashCode ^
+        destLocationName.hashCode ^
+        creationTime.hashCode ^
+        scheduledTime.hashCode ^
+        completedTime.hashCode ^
+        fare.hashCode;
   }
 }

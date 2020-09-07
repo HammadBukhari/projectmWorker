@@ -33,6 +33,7 @@ dependencies:
   cupertino_icons: ^0.1.3
   shared_preferences: ^0.5.10
   get: ^3.8.0
+  geolocator: ^6.0.0+3
 
 dev_dependencies:
   flutter_test:

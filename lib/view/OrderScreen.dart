@@ -9,13 +9,11 @@ import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:projectmworker/shared/color.dart';
 
 import '../shared/color.dart';
-import '../shared/color.dart';
-import '../shared/color.dart';
+import 'provider/OrderProvider.dart';
 
 //import '../HomePage.dart';
 
 class OrderScreen extends StatefulWidget {
-
   OrderScreen(this.orderId);
   final String orderId;
 
@@ -24,10 +22,9 @@ class OrderScreen extends StatefulWidget {
 }
 
 class _OrderScreenState extends State<OrderScreen> {
-
   _OrderScreenState(this.orderId);
   final String orderId;
-
+  final provider = GetIt.I<OrderProvider>();
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -77,9 +74,20 @@ class _OrderScreenState extends State<OrderScreen> {
                           padding: const EdgeInsets.all(15.0),
                           child: Row(
                             children: [
-                              Icon(Icons.shopping_cart,color: Colors.white,),
-                              SizedBox(width: 10,),
-                              Text("Order No. $orderId",style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.bold),),
+                              Icon(
+                                Icons.shopping_cart,
+                                color: Colors.white,
+                              ),
+                              SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                "Order No. $orderId",
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold),
+                              ),
                             ],
                           ),
                         ),
@@ -91,81 +99,140 @@ class _OrderScreenState extends State<OrderScreen> {
                             Table(
                               columnWidths: {0: FractionColumnWidth(0.4)},
                               children: [
-                                TableRow(
-                                  children: [
-                                    Text("Pickup: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                    Padding(
-                                      padding: const EdgeInsets.only(bottom: 10),
-                                      child: Container(
-                                        width: MediaQuery.of(context).size.width*0.65,
-                                        child: Text("Dubai",style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.left,),
+                                TableRow(children: [
+                                  Text("Pickup: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "Dubai",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.left,
                                       ),
                                     ),
-                                  ]
-                                ),
-                                TableRow(
-                                    children: [
-                                      Text("Dropoff: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width*0.65,
-                                          child: Text("Sharjah",style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.left,),
-                                        ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Text("Dropoff: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "Sharjah",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.left,
                                       ),
-                                    ]
-                                ),
-                                TableRow(
-                                    children: [
-                                      Text("Distance: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width*0.65,
-                                          child: Text("25 KM ",style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.left,),
-                                        ),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Text("Distance: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "25 KM ",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.left,
                                       ),
-                                    ]
-                                ),
-                                TableRow(
-                                    children: [
-                                      Text("Fare: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width*0.65,
-                                          child: Text("70 AED ",style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.left,),
-                                        ),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Text("Fare: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "70 AED ",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.left,
                                       ),
-                                    ]
-                                ),
-                                TableRow(
-                                    children: [
-                                      Text("Estimated Time: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width*0.65,
-                                          child: Text("22 Mins",style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.left,),
-                                        ),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Text("Estimated Time: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "22 Mins",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.left,
                                       ),
-                                    ]
-                                ),
-                                TableRow(
-                                    children: [
-                                      Text("Instructions: ",style: TextStyle(color: AppColor.buttonColor,fontSize: 18,fontWeight: FontWeight.bold)),
-                                      Padding(
-                                        padding: const EdgeInsets.only(bottom: 10),
-                                        child: Container(
-                                          width: MediaQuery.of(context).size.width*0.65,
-                                          child: Text("Hello, you need to get me some bottles of Coca Cola from Super Mart. "
-                                              "You have to buy some Lays also. I want it as soon as you can. So please hurry. "
-                                              "If you still don't under stand then call me i will explain it to you.",
-                                            style: TextStyle(color: Colors.black.withOpacity(0.6),fontSize: 17),textAlign: TextAlign.justify,),
-                                        ),
+                                    ),
+                                  ),
+                                ]),
+                                TableRow(children: [
+                                  Text("Instructions: ",
+                                      style: TextStyle(
+                                          color: AppColor.buttonColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold)),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.65,
+                                      child: Text(
+                                        "Hello, you need to get me some bottles of Coca Cola from Super Mart. "
+                                        "You have to buy some Lays also. I want it as soon as you can. So please hurry. "
+                                        "If you still don't under stand then call me i will explain it to you.",
+                                        style: TextStyle(
+                                            color:
+                                                Colors.black.withOpacity(0.6),
+                                            fontSize: 17),
+                                        textAlign: TextAlign.justify,
                                       ),
-                                    ]
-                                ),
+                                    ),
+                                  ),
+                                ]),
                               ],
                             ),
                           ],
@@ -183,19 +250,37 @@ class _OrderScreenState extends State<OrderScreen> {
                         alignment: Alignment.center,
                         child: ButtonTheme(
                           height: 40,
-                          minWidth: MediaQuery.of(context).size.width*0.4,
+                          minWidth: MediaQuery.of(context).size.width * 0.4,
                           child: RaisedButton(
                             elevation: 10,
-                            child: Text("Accept",style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18),),
-                            onPressed: (){
-
+                            child: Text(
+                              "Accept",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18),
+                            ),
+                            onPressed: () async {
+                              final status =
+                                  await provider.acceptOrder(orderId);
+                              if (status == OrderAcceptanceStatus.success) {
+                                Fluttertoast.showToast(msg: "Order accepted");
+                              } else if (status ==
+                                  OrderAcceptanceStatus.unknownError) {
+                                Fluttertoast.showToast(
+                                    msg: "Check your internet connection");
+                              } else if (status ==
+                                  OrderAcceptanceStatus.locationProblem) {
+                                Fluttertoast.showToast(
+                                    msg:
+                                        "Unable to retrieve your location. Check your location settings");
+                              }
                             },
                             color: AppColor.buttonColor,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(color: AppColor.buttonColor),
                             ),
-
                           ),
                         ),
                       ),
@@ -206,19 +291,22 @@ class _OrderScreenState extends State<OrderScreen> {
                         alignment: Alignment.center,
                         child: ButtonTheme(
                           height: 40,
-                          minWidth: MediaQuery.of(context).size.width*0.4,
+                          minWidth: MediaQuery.of(context).size.width * 0.4,
                           child: RaisedButton(
                             elevation: 10,
-                            child: Text("Reject",style: TextStyle(fontWeight: FontWeight.bold,color: AppColor.buttonColor,fontSize: 18),),
-                            onPressed: (){
-
-                            },
+                            child: Text(
+                              "Reject",
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColor.buttonColor,
+                                  fontSize: 18),
+                            ),
+                            onPressed: () {},
                             color: Colors.white,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
                               side: BorderSide(color: AppColor.buttonColor),
                             ),
-
                           ),
                         ),
                       ),
@@ -233,5 +321,3 @@ class _OrderScreenState extends State<OrderScreen> {
     );
   }
 }
-
-

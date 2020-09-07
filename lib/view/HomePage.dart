@@ -1,7 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../AppPushNotification.dart';
+import 'OrderScreen.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -14,18 +16,24 @@ class _HomePageState extends State<HomePage> {
     _firebaseMessaging.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
+        if (message["data"]["orderId"] != null) {
+          Get.to(OrderScreen(message["data"]["orderId"]));
+        }
       },
       onBackgroundMessage: myBackgroundMessageHandler,
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
-        // _navigateToItemDetail(message);
+        if (message["data"]["orderId"] != null) {
+          Get.to(OrderScreen(message["data"]["orderId"]));
+        }
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-        // _navigateToItemDetail(message);
+        if (message["data"]["orderId"] != null) {
+          Get.to(OrderScreen(message["data"]["orderId"]));
+        }
       },
     );
-    
   }
 
   @override

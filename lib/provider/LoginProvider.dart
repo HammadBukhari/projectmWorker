@@ -18,7 +18,7 @@ class LoginProvider {
       if (messenger == null) return false;
       // update token
       final token = await _firebaseMessaging.getToken();
-      uploadTokenToMessengerDoc(messenger.uid, token);
+      await uploadTokenToMessengerDoc(messenger.uid, token);
     }
     return status;
   }
@@ -59,6 +59,7 @@ class LoginProvider {
 
   Future<void> uploadTokenToMessengerDoc(
       String messengerEmail, String token) async {
+    await _firebaseMessaging.subscribeToTopic("messenger");
     await FirebaseFirestore.instance
         .collection("messenger")
         .doc(messengerEmail)
