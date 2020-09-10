@@ -19,6 +19,8 @@ class LoginProvider {
       // update token
       final token = await _firebaseMessaging.getToken();
       await uploadTokenToMessengerDoc(messenger.uid, token);
+      // register to messenger topic
+      _firebaseMessaging.subscribeToTopic("messenger");
     }
     return status;
   }

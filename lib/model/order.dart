@@ -37,6 +37,7 @@ class Order {
   int scheduledTime;
   int completedTime;
   double fare;
+  bool isCatered;
   Order({
     this.userOrderNo,
     this.orderId,
@@ -60,6 +61,7 @@ class Order {
     this.scheduledTime,
     this.completedTime,
     this.fare,
+    this.isCatered,
   });
 
   Map<String, dynamic> toMap() {
@@ -86,6 +88,7 @@ class Order {
       'scheduledTime': scheduledTime,
       'completedTime': completedTime,
       'fare': fare,
+      'isCatered': isCatered,
     };
   }
 
@@ -115,6 +118,7 @@ class Order {
       scheduledTime: map['scheduledTime'],
       completedTime: map['completedTime'],
       fare: map['fare'],
+      isCatered: map['isCatered'],
     );
   }
 
@@ -124,59 +128,7 @@ class Order {
 
   @override
   String toString() {
-    return 'Order(userOrderNo: $userOrderNo, orderId: $orderId, messageDocId: $messageDocId, isNow: $isNow, userUid: $userUid, messengerId: $messengerId, messengerLat: $messengerLat, messengerLng: $messengerLng, rating: $rating, instruction: $instruction, ratingComment: $ratingComment, sourceLat: $sourceLat, sourceLng: $sourceLng, sourceLocationName: $sourceLocationName, destLat: $destLat, destlng: $destlng, destLocationName: $destLocationName, creationTime: $creationTime, scheduledTime: $scheduledTime, completedTime: $completedTime, fare: $fare)';
+    return 'Order(userOrderNo: $userOrderNo, orderId: $orderId, messageDocId: $messageDocId, isNow: $isNow, userUid: $userUid, messengerId: $messengerId, messengerLat: $messengerLat, messengerLng: $messengerLng, rating: $rating, instruction: $instruction, ratingComment: $ratingComment, sourceLat: $sourceLat, sourceLng: $sourceLng, sourceLocationName: $sourceLocationName, destLat: $destLat, destlng: $destlng, destLocationName: $destLocationName, creationTime: $creationTime, scheduledTime: $scheduledTime, completedTime: $completedTime, fare: $fare, isCatered: $isCatered)';
   }
 
-  @override
-  bool operator ==(Object o) {
-    if (identical(this, o)) return true;
-
-    return o is Order &&
-        o.userOrderNo == userOrderNo &&
-        o.orderId == orderId &&
-        o.messageDocId == messageDocId &&
-        o.isNow == isNow &&
-        o.userUid == userUid &&
-        o.messengerId == messengerId &&
-        o.messengerLat == messengerLat &&
-        o.messengerLng == messengerLng &&
-        o.rating == rating &&
-        o.instruction == instruction &&
-        o.ratingComment == ratingComment &&
-        o.sourceLat == sourceLat &&
-        o.sourceLng == sourceLng &&
-        o.sourceLocationName == sourceLocationName &&
-        o.destLat == destLat &&
-        o.destlng == destlng &&
-        o.destLocationName == destLocationName &&
-        o.creationTime == creationTime &&
-        o.scheduledTime == scheduledTime &&
-        o.completedTime == completedTime &&
-        o.fare == fare;
-  }
-
-  @override
-  int get hashCode {
-    return userOrderNo.hashCode ^
-        orderId.hashCode ^
-        messageDocId.hashCode ^
-        isNow.hashCode ^
-        userUid.hashCode ^
-        messengerId.hashCode ^
-        messengerLat.hashCode ^
-        messengerLng.hashCode ^
-        rating.hashCode ^
-        instruction.hashCode ^
-        ratingComment.hashCode ^
-        sourceLat.hashCode ^
-        sourceLng.hashCode ^
-        sourceLocationName.hashCode ^
-        destLat.hashCode ^
-        destlng.hashCode ^
-        destLocationName.hashCode ^
-        creationTime.hashCode ^
-        scheduledTime.hashCode ^
-        completedTime.hashCode ^
-        fare.hashCode;
-  }
 }

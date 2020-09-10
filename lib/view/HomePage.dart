@@ -1,16 +1,21 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_it/get_it.dart';
+import 'package:projectmworker/provider/LoginProvider.dart';
+import 'package:projectmworker/shared/color.dart';
 
 import '../AppPushNotification.dart';
 import 'OrderScreen.dart';
 
-class HomePage extends StatefulWidget {
+class FirebaseNotificationScreen extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _FirebaseNotificationScreenState createState() =>
+      _FirebaseNotificationScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _FirebaseNotificationScreenState
+    extends State<FirebaseNotificationScreen> {
   _configFirebaseMessaging() {
     FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
     _firebaseMessaging.configure(
@@ -44,12 +49,57 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    return HomePage();
+  }
+}
+
+class HomePage extends StatefulWidget {
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final loginProvider = GetIt.I<LoginProvider>();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Container(
-          child: Text(
-            "Hello Waqar",
+      backgroundColor: Colors.transparent,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            // end: Alignment.bottomCenter,
+            colors: [
+              AppColor.primaryColor,
+              AppColor.buttonColor,
+            ],
           ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text(
+                "Hello ${loginProvider.messenger.uid}",
+                style: Theme.of(context)
+                    .textTheme
+                    .headline4
+                    .copyWith(color: Colors.white),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Text(
+                "Waiting for new orders.\nYou will receive a notification for order. ",
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyText1
+                    .copyWith(color: Colors.white),
+              ),
+            ),
+          ],
         ),
       ),
     );
