@@ -75,21 +75,22 @@ class OrderProvider {
     );
     final order = currentOrder.value;
     if (order != null) {
+      currentOrder.value = null;
+      currentOrder.notifyListeners();
       order.status = OrderStatus.orderCancelled;
+      order.isCatered = true;
       await firestore
           .collection("order")
           .doc(order.orderId)
           .update(order.toMap());
       Get.offAll(HomePage());
       Get.defaultDialog(
-        title: "Order Completed",
+        title: "Order Cancelled",
         content: Icon(
-          Icons.check,
+          Icons.cancel,
           size: 48,
         ),
       );
-      currentOrder.value = null;
-      currentOrder.notifyListeners();
       return true;
     }
     return false;
@@ -102,7 +103,11 @@ class OrderProvider {
     );
     final order = currentOrder.value;
     if (order != null) {
+      currentOrder.value = null;
+      currentOrder.notifyListeners();
+
       order.status = OrderStatus.orderCompleted;
+      order.isCatered = true;
       await firestore
           .collection("order")
           .doc(order.orderId)
@@ -115,8 +120,6 @@ class OrderProvider {
           size: 48,
         ),
       );
-      currentOrder.value = null;
-      currentOrder.notifyListeners();
       return true;
     }
     return false;
@@ -125,6 +128,7 @@ class OrderProvider {
   Future<OrderAcceptanceStatus> acceptOrder(String orderId) async {
     try {
       Get.defaultDialog(
+        title: "Loading",
         content: CircularProgressIndicator(),
       );
       Position position = await getCurrentPosition(
