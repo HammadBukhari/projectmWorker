@@ -10,6 +10,7 @@ import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:background_location/background_location.dart';
+import 'package:uuid/uuid.dart';
 
 import '../HomePage.dart';
 import '../OngoingOrderScreen.dart';
@@ -155,7 +156,11 @@ class OrderProvider {
         order.status = OrderStatus.messengerOnWay;
         order.messengerLat = position.latitude;
         order.messengerLng = position.longitude;
+        final messageDocId = Uuid().v1();
+        order.messageDocId = messageDocId;
         t.update(orderDoc.reference, order.toMap());
+        t.set(firestore.collection("message").doc(messageDocId),
+            {"orderId": order.orderId});
         currentOrder.value = order;
         currentOrder.notifyListeners();
         return OrderAcceptanceStatus.success;

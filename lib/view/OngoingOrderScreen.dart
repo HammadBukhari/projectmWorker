@@ -6,6 +6,7 @@ import 'package:projectmworker/view/OrderCard.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:get/route_manager.dart';
 
+import 'ChatScreen.dart';
 import 'provider/OrderProvider.dart';
 
 class OngoingOrderScreen extends StatelessWidget {
@@ -67,6 +68,32 @@ class OngoingOrderScreen extends StatelessWidget {
                     // const url =
                     //     'https://www.google.com/maps/dir/?api=1&origin=43.7967876,-79.5331616&destination=43.5184049,-79.8473993&waypoints=43.1941283,-79.59179|43.7991083,-79.5339667|43.8387033,-79.3453417|43.836424,-79.3024487&travelmode=driving&dir_action=navigate';
                     _launchURL(url);
+                  },
+                  color: AppColor.primaryColor,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                    side: BorderSide(color: AppColor.primaryColor),
+                  ),
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: ButtonTheme(
+                height: 40,
+                child: RaisedButton(
+                  elevation: 10,
+                  child: Text(
+                    "Open Chat",
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 18),
+                  ),
+                  onPressed: () {
+                    Get.to(ChatScreen(
+                      order: order,
+                    ));
                   },
                   color: AppColor.primaryColor,
                   shape: RoundedRectangleBorder(
