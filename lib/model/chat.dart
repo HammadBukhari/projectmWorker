@@ -2,16 +2,23 @@ import 'dart:convert';
 
 class Chat {
   final String orderId;
+  final String messengerNotifToken;
+  final String userNotifToken;
   List<Message> messages;
   Chat({
     this.orderId,
     this.messages,
+    this.messengerNotifToken,
+    this.userNotifToken,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'orderId': orderId,
       'messages': messages?.map((x) => x?.toMap())?.toList(),
+      'messengerNotifToken': messengerNotifToken,
+      'userNotifToken': userNotifToken,
+      
     };
   }
 
@@ -23,6 +30,8 @@ class Chat {
       messages: map['messages'] != null
           ? List<Message>.from(map['messages']?.map((x) => Message.fromMap(x)))
           : null,
+      userNotifToken: map['userNotifToken'],
+      messengerNotifToken: map['messengerNotifToken'],
     );
   }
 
@@ -58,7 +67,7 @@ class Message {
       'type': type?.index,
       'sendingTime': sendingTime,
       'paymentStatus': paymentStatus?.index,
-      'messageId' : messageId,
+      'messageId': messageId,
     };
   }
 
@@ -71,7 +80,7 @@ class Message {
       type: MessageType.values[(map['type'])],
       sendingTime: map['sendingTime'],
       paymentStatus: PaymentStatus.values[map['paymentStatus']],
-      messageId : map['messageId'],
+      messageId: map['messageId'],
     );
   }
 
@@ -98,5 +107,4 @@ enum PaymentStatus {
   accepted,
   completed,
   failed,
-  
 }

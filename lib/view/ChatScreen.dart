@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:bubble/bubble.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,6 +17,7 @@ import 'dart:ui' as ui;
 import 'ImageViewerScreen.dart';
 import 'authentication/crop_image_screen.dart';
 import 'provider/ChatProvider.dart';
+import 'provider/InternetCheckProvider.dart';
 
 class ChatScreen extends StatefulWidget {
   final Order order;
@@ -38,22 +41,39 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
+
     getMessenger();
     isBusy.addListener(() {
       if (isBusy.value) {
         Get.defaultDialog(
           title: "Uploading Image",
+          backgroundColor: Colors.grey[100],
           content: CircularProgressIndicator(),
         );
       } else {
         Get.back();
       }
     });
+    internetConnectivityChecker();
     // scrollMessageListToEnd();
     // msgListController.addListener(() {
     //   if (msgListController.hasClients && !_isScrolledForFirstTime) {
     //   }
     // });
+  }
+
+  void internetConnectivityChecker() {
+    Timer.periodic(Duration(seconds: 5), (timer) {
+      GetIt.I<InternetCheckProvider>().isInternetAvailable.then((value) {
+        if (!value && !Get.isSnackbarOpen) {
+          Get.snackbar(
+            "No Internet Connection",
+            "Make sure you are connected to a stable WiFi/Mobile Data connection",
+            snackPosition: SnackPosition.TOP,
+          );
+        }
+      });
+    });
   }
 
   String userName;
@@ -161,6 +181,7 @@ class ChatScreenState extends State<ChatScreen> {
               onTap: () {
                 Get.defaultDialog(
                   title: "This is a verfied Payment",
+                  backgroundColor: Colors.grey[100],
                   content: Icon(
                     Icons.check_circle_outline,
                     color: Colors.green,
@@ -297,60 +318,60 @@ class ChatScreenState extends State<ChatScreen> {
                             style: TextStyle(color: AppColor.primaryColor),
                           ),
                         ),
-                        CupertinoButton(
-                          onPressed: () {
-                            Get.back();
-                            Get.defaultDialog(
-                              title: 'Enter Amount',
-                              content: TextField(
-                                controller: paymentTEC,
-                                keyboardType: TextInputType.numberWithOptions(
-                                  signed: false,
-                                  decimal: true,
-                                ),
-                              ),
-                              actions: [
-                                FlatButton(
-                                  onPressed: () {
-                                    Get.back();
-                                  },
-                                  child: Text(
-                                    "Cancel",
-                                  ),
-                                ),
-                                FlatButton(
-                                  onPressed: () async {
-                                    try {
-                                      double.parse(paymentTEC.text.trim());
-                                      // if parsable then continue, else show error
+                        // CupertinoButton(
+                        //   onPressed: () {
+                        //     Get.back();
+                        //     Get.defaultDialog(
+                        //       title: 'Enter Amount',
+                        //       content: TextField(
+                        //         controller: paymentTEC,
+                        //         keyboardType: TextInputType.numberWithOptions(
+                        //           signed: false,
+                        //           decimal: true,
+                        //         ),
+                        //       ),
+                        //       actions: [
+                        //         FlatButton(
+                        //           onPressed: () {
+                        //             Get.back();
+                        //           },
+                        //           child: Text(
+                        //             "Cancel",
+                        //           ),
+                        //         ),
+                        //         FlatButton(
+                        //           onPressed: () async {
+                        //             try {
+                        //               double.parse(paymentTEC.text.trim());
+                        //               // if parsable then continue, else show error
 
-                                      // TODO: deduct amount
+                        //               // TODO: deduct amount
 
-                                      await provider.sendMessage(
-                                          widget.order.messageDocId,
-                                          paymentTEC.text.trim(),
-                                          MessageType.money,
-                                          PaymentStatus.completed);
-                                      scrollMessageListToEnd();
-                                      Get.back();
-                                    } catch (e) {
-                                      Get.defaultDialog(
-                                        title: "Invalid Amount",
-                                        content: Text(
-                                            "The amount you entered is invalid"),
-                                      );
-                                    }
-                                  },
-                                  child: Text("Confirm"),
-                                ),
-                              ],
-                            );
-                          },
-                          child: Text(
-                            "Payment",
-                            style: TextStyle(color: AppColor.primaryColor),
-                          ),
-                        ),
+                        //               await provider.sendMessage(
+                        //                   widget.order.messageDocId,
+                        //                   paymentTEC.text.trim(),
+                        //                   MessageType.money,
+                        //                   PaymentStatus.completed);
+                        //               scrollMessageListToEnd();
+                        //               Get.back();
+                        //             } catch (e) {
+                        //               Get.defaultDialog(
+                        //                 title: "Invalid Amount",
+                        //                 content: Text(
+                        //                     "The amount you entered is invalid"),
+                        //               );
+                        //             }
+                        //           },
+                        //           child: Text("Confirm"),
+                        //         ),
+                        //       ],
+                        //     );
+                        //   },
+                        //   child: Text(
+                        //     "Payment",
+                        //     style: TextStyle(color: AppColor.primaryColor),
+                        //   ),
+                        // ),
                       ],
                       cancelButton: CupertinoButton(
                         child: Text(
@@ -395,14 +416,15 @@ class ChatScreenState extends State<ChatScreen> {
               ),
               onPressed: () async {
                 if (!isTextEmpty) {
-                  await provider.sendMessage(
+                  provider.sendMessage(
                     widget.order.messageDocId,
                     textEditingController.text.trim(),
                     MessageType.text,
                     PaymentStatus.none,
                   );
-                  scrollMessageListToEnd();
                   textEditingController.clear();
+
+                  scrollMessageListToEnd();
                 }
               },
             ),
@@ -447,6 +469,7 @@ class ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: _appBar(context),
       body: Column(
         children: [

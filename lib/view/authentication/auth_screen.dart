@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         "Incorrect email/password or internet connection issue");
                               } else {
                                 GetIt.I.registerSingleton(OrderProvider());
-                                Get.to(HomePage());
+                                Get.to(FirebaseNotificationScreen());
                               }
                             }
                           },

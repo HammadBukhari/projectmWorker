@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -8,6 +9,8 @@ import 'package:projectmworker/model/chat.dart';
 import 'dart:ui' as ui;
 import 'package:path/path.dart' as path;
 import 'package:uuid/uuid.dart';
+import 'package:http/http.dart' as http;
+
 
 class ChatProvider {
   final firestore = FirebaseFirestore.instance;
@@ -25,30 +28,87 @@ class ChatProvider {
       .doc(messageDocId)
       .snapshots()
       .map((event) => Chat.fromMap(event.data()));
+   Future<void> sendMessageNotification(
+    String messageDocId,
+    String title,
+    String body,
+  ) async {
+    final chatDoc =
+        await firestore.collection("message").doc(messageDocId).get();
+    final chat = Chat.fromMap(chatDoc.data());
+
+    // final order = GetIt.I<OrderProvider>().currentOrder.value;
+    // if (order == null) return;
+
+    const serverToken =
+        "AAAAflSdga0:APA91bGsDji3ZNhOJv_vXh3GpTbMyf6OEF4oeCjsFPngsIZiU_cnfSgC1IZr9xnb6vKcApG_SP97m75qg64zkIzQK72S0rSYI7mJV0itgmwXGgeLjxQZohmSeBZleYwAsE0eMT5B1QIV";
+    await http.post(
+      'https://fcm.googleapis.com/fcm/send',
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        'Authorization': 'key=$serverToken',
+      },
+      body: jsonEncode(
+        <String, dynamic>{
+          'notification': <String, dynamic>{'body': body, 'title': title},
+          'priority': 'high',
+          'data': <String, dynamic>{
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'id': '1',
+            'status': 'done',
+            'notification_order_id': chat.orderId,
+          },
+          'to': chat.userNotifToken,
+        },
+      ),
+    );
+  }
 
   Future<void> sendMessage(String messageDocId, String message,
       MessageType type, PaymentStatus paymentStatus) {
-    try {
-      return firestore.runTransaction((t) async {
-        final chatDocRef = firestore.collection("message").doc(messageDocId);
-        final chatDoc = await t.get(chatDocRef);
-        final chat = Chat.fromMap(chatDoc.data());
-        if (chat.messages == null) {
-          chat.messages = [];
-        }
-        chat.messages.add(Message(
-          message: message,
-          sender: ChatRole.messenger,
-          type: type,
-          paymentStatus: paymentStatus,
-          sendingTime: DateTime.now().millisecondsSinceEpoch,
-        ));
-        t.update(chatDocRef, chat.toMap());
-      });
-    } catch (e) {
-      print(e);
-      return null;
-    }
+    final messageMap = Message(
+      message: message,
+      sender: ChatRole.messenger,
+      type: type,
+      paymentStatus: paymentStatus,
+      sendingTime: DateTime.now().millisecondsSinceEpoch,
+    ).toMap();
+    firestore.collection("message").doc(messageDocId).update({
+      "messages": FieldValue.arrayUnion([messageMap])
+    });
+    String notifMessage;
+    if (type == MessageType.text)
+      notifMessage = message;
+    else if (type == MessageType.image)
+      notifMessage = "Sent you a picture.";
+    else if (type == MessageType.money) notifMessage = "Sent you a $message AED.";
+    sendMessageNotification(
+      messageDocId,
+      "Messenger",
+      notifMessage,
+    );
+
+    // try {
+    //   return firestore.runTransaction((t) async {
+    //     final chatDocRef = firestore.collection("message").doc(messageDocId);
+    //     final chatDoc = await t.get(chatDocRef);
+    //     final chat = Chat.fromMap(chatDoc.data());
+    //     if (chat.messages == null) {
+    //       chat.messages = [];
+    //     }
+    //     chat.messages.add(Message(
+    //       message: message,
+    //       sender: ChatRole.messenger,
+    //       type: type,
+    //       paymentStatus: paymentStatus,
+    //       sendingTime: DateTime.now().millisecondsSinceEpoch,
+    //     ));
+    //     t.update(chatDocRef, chat.toMap());
+    //   });
+    // } catch (e) {
+    //   print(e);
+    //   return null;
+    // }
   }
 
   Future<String> uploadUserImage(ui.Image toUpload) async {

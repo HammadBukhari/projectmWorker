@@ -84,6 +84,10 @@ class _OrderScreenState extends State<OrderScreen> {
                                         fontSize: 18),
                                   ),
                                   onPressed: () async {
+                                    Get.defaultDialog(
+                                      title: "Loading",
+                                      content: CircularProgressIndicator(),
+                                    );
                                     final status =
                                         await provider.acceptOrder(orderId);
                                     if (Get.isDialogOpen) Get.back();
@@ -91,7 +95,8 @@ class _OrderScreenState extends State<OrderScreen> {
                                         OrderAcceptanceStatus.success) {
                                       Fluttertoast.showToast(
                                           msg: "Order accepted");
-                                      Get.to(OngoingOrderScreen(order: order));
+                                      Get.to(OngoingOrderScreen(
+                                          order: provider.currentOrder.value));
                                     } else if (status ==
                                         OrderAcceptanceStatus.unknownError) {
                                       Fluttertoast.showToast(

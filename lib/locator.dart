@@ -5,6 +5,7 @@ import 'package:projectmworker/view/HomePage.dart';
 import 'package:projectmworker/view/OngoingOrderScreen.dart';
 import 'package:projectmworker/view/OrderScreen.dart';
 import 'package:projectmworker/view/provider/ChatProvider.dart';
+import 'package:projectmworker/view/provider/InternetCheckProvider.dart';
 
 import 'model/order.dart';
 import 'provider/LoginProvider.dart';
@@ -14,6 +15,8 @@ import 'view/provider/OrderProvider.dart';
 
 Future<Widget> setup() async {
   GetIt.I.registerSingleton(LoginProvider());
+  GetIt.I.registerSingleton(InternetCheckProvider());
+
   GetIt.I.registerSingleton(ChatProvider());
   if (await GetIt.I<LoginProvider>().isUserLoggedIn) {
     GetIt.I.registerSingleton(OrderProvider());
@@ -29,7 +32,7 @@ Future<Widget> setup() async {
 
     // final orderDoc = await FirebaseFirestore.instance
     //     .collection("order")
-    //     .doc("0ae42a61-a325-4846-8e7b-62bc2f143f85")
+    //     .doc("022103ac-d91d-49db-a8ea-2e2bd853c2bf")
     //     .get();
     // return ChatScreen(
     //   order: Order.fromMap(orderDoc.data()),

@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/route_manager.dart';
 import 'package:get_it/get_it.dart';
+import 'package:projectmworker/model/app_user.dart';
+import 'package:projectmworker/model/chat.dart';
 import 'package:projectmworker/model/order.dart';
 import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:background_location/background_location.dart';
+import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
 import '../HomePage.dart';
@@ -92,6 +95,8 @@ class OrderProvider {
           size: 48,
         ),
       );
+      BackgroundLocation.stopLocationService();
+
       return true;
     }
     return false;
@@ -121,17 +126,15 @@ class OrderProvider {
           size: 48,
         ),
       );
+      BackgroundLocation.stopLocationService();
       return true;
     }
     return false;
   }
 
   Future<OrderAcceptanceStatus> acceptOrder(String orderId) async {
+    print("accept order => $orderId");
     try {
-      Get.defaultDialog(
-        title: "Loading",
-        content: CircularProgressIndicator(),
-      );
       Position position = await getCurrentPosition(
           desiredAccuracy: LocationAccuracy.bestForNavigation);
 
@@ -143,14 +146,16 @@ class OrderProvider {
 
       if (position == null) return OrderAcceptanceStatus.locationProblem;
       BackgroundLocation.startLocationService();
+      if (currentOrder.value != null) return OrderAcceptanceStatus.unknownError;
 
-      return FirebaseFirestore.instance
-          .runTransaction<OrderAcceptanceStatus>((t) async {
+      final result = await firestore
+          .runTransaction<Tuple2<OrderAcceptanceStatus, Order>>((t) async {
         final orderDoc =
             await t.get(firestore.collection("order").doc(orderId));
         final order = Order.fromMap(orderDoc.data());
         if (order.status != OrderStatus.findingMessenger) {
-          return OrderAcceptanceStatus.alreadyAccepted;
+          return Tuple2<OrderAcceptanceStatus, Order>(
+              OrderAcceptanceStatus.alreadyAccepted, null);
         }
         order.messengerId = loginProvider.messenger.uid;
         order.status = OrderStatus.messengerOnWay;
@@ -158,13 +163,36 @@ class OrderProvider {
         order.messengerLng = position.longitude;
         final messageDocId = Uuid().v1();
         order.messageDocId = messageDocId;
-        t.update(orderDoc.reference, order.toMap());
-        t.set(firestore.collection("message").doc(messageDocId),
-            {"orderId": order.orderId});
-        currentOrder.value = order;
+        final userToken = AppUser.fromMap(
+          (await t.get(
+            firestore.collection("user").doc(order.userUid),
+          ))
+              .data(),
+        ).token;
+        final orderWithoutTokens = order.toMap();
+        final orderWithTokens = orderWithoutTokens
+          ..putIfAbsent(
+              "messengerNotifToken", () => loginProvider.messenger.token)
+          ..putIfAbsent("userNotifToken", () => userToken);
+        t.set(
+            firestore.collection("message").doc(messageDocId),
+            Chat(
+              orderId: orderId,
+              messengerNotifToken: loginProvider.messenger.token,
+              userNotifToken: userToken,
+              messages: [],
+            ).toMap());
+
+        t.update(orderDoc.reference, orderWithTokens);
+
+        return Tuple2<OrderAcceptanceStatus, Order>(
+            OrderAcceptanceStatus.success, order);
+      }, timeout: Duration(seconds: 10));
+      if (result.item1 == OrderAcceptanceStatus.success) {
+        currentOrder.value = result.item2;
         currentOrder.notifyListeners();
-        return OrderAcceptanceStatus.success;
-      });
+      }
+      return result.item1;
     } catch (e) {
       return OrderAcceptanceStatus.unknownError;
     }

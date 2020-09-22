@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:projectmworker/model/chat.dart';
+import 'package:projectmworker/model/order.dart';
 import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:projectmworker/shared/color.dart';
 
 import '../AppPushNotification.dart';
+import 'ChatScreen.dart';
 import 'OrderScreen.dart';
 
 class FirebaseNotificationScreen extends StatefulWidget {
@@ -23,6 +27,8 @@ class _FirebaseNotificationScreenState
         print("onMessage: $message");
         if (message["data"]["orderId"] != null) {
           Get.to(OrderScreen(message["data"]["orderId"]));
+        } else if (message['data']['notification_order_id'] != null) {
+          openMessageSnackBar(message['data']['notification_order_id']);
         }
       },
       onBackgroundMessage: myBackgroundMessageHandler,
@@ -30,15 +36,48 @@ class _FirebaseNotificationScreenState
         print("onLaunch: $message");
         if (message["data"]["orderId"] != null) {
           Get.to(OrderScreen(message["data"]["orderId"]));
+        } else if (message['data']['notification_order_id'] != null) {
+          openMessageNotification(message['data']['notification_order_id']);
         }
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
         if (message["data"]["orderId"] != null) {
           Get.to(OrderScreen(message["data"]["orderId"]));
+        } else if (message['data']['notification_order_id'] != null) {
+          openMessageNotification(message['data']['notification_order_id']);
         }
       },
     );
+  }
+
+  void openMessageSnackBar(String orderId) async {
+    //check if order is not catered
+    final orderDoc =
+        await FirebaseFirestore.instance.collection("order").doc(orderId).get();
+    final order = Order.fromMap(orderDoc.data());
+    if (!order.isCatered) {
+      Get.snackbar("Message Recevied", "Open chat Screen");
+    }
+  }
+
+  void openMessageNotification(String orderId) async {
+    //check if order is not catered
+    final orderDoc =
+        await FirebaseFirestore.instance.collection("order").doc(orderId).get();
+    final order = Order.fromMap(orderDoc.data());
+    if (!order.isCatered) {
+      // final chatDoc = await FirebaseFirestore.instance
+      //     .collection("message")
+      //     .doc(order.messageDocId)
+      //     .get();
+      // final chat = Chat.fromMap(chatDoc.data());
+      Get.to(
+        ChatScreen(
+          order: order,
+        ),
+      );
+    }
   }
 
   @override
