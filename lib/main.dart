@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetMaterialApp(
       themeMode: ThemeMode.light,
-      title: 'Flutter Demo',
+      title: 'Messenger Workers',
       theme: ThemeData(
         textTheme: TextTheme(
           bodyText2: TextStyle(

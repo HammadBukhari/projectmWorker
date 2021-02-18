@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
 import 'package:intl/intl.dart';
-import 'package:projectmworker/model/app_messenger.dart';
 import 'package:projectmworker/model/chat.dart';
 import 'package:projectmworker/model/order.dart';
 import 'package:projectmworker/shared/color.dart';
@@ -86,30 +85,35 @@ class ChatScreenState extends State<ChatScreen> {
 
   void pickImage() {
     provider.pickImageForRegistration().then((value) async {
-      if (value != null) {
-        final ui.Image result = await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => CropImageScreen(
-                image: value,
-              ),
-              settings: RouteSettings(name: "CropImageScreen"),
-            ));
+      try {
+        if (value != null) {
+          final ui.Image result = await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CropImageScreen(
+                  image: value,
+                ),
+                settings: RouteSettings(name: "CropImageScreen"),
+              ));
 
-        if (result != null) {
-          String url = await provider.uploadUserImage(result);
-          await provider.sendMessage(
-            widget.order.messageDocId,
-            url,
-            MessageType.image,
-            PaymentStatus.none,
-          );
-          scrollMessageListToEnd();
-          setState(() {
-            isBusy.value = false;
-          });
+          if (result != null) {
+            String url = await provider.uploadUserImage(result);
+            await provider.sendMessage(
+              widget.order.messageDocId,
+              url,
+              MessageType.image,
+              PaymentStatus.none,
+            );
+            scrollMessageListToEnd();
+          }
         }
+      } catch (e) {
+        Get.snackbar("Error Uploading Image", "Check your internet connection");
       }
+
+      setState(() {
+        isBusy.value = false;
+      });
     });
   }
 
@@ -128,7 +132,7 @@ class ChatScreenState extends State<ChatScreen> {
               nip: m.sender == ChatRole.messenger
                   ? BubbleNip.rightBottom
                   : BubbleNip.leftBottom,
-              elevation: 5.toDouble(),
+              elevation: 2.toDouble(),
               margin: BubbleEdges.only(top: 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -146,9 +150,9 @@ class ChatScreenState extends State<ChatScreen> {
                     DateFormat.jm().format(
                         DateTime.fromMillisecondsSinceEpoch(m.sendingTime)),
                     style: TextStyle(
-                      fontWeight: FontWeight.w300,
+                      fontWeight: FontWeight.w400,
                       color: m.sender == ChatRole.messenger
-                          ? Colors.white54
+                          ? Colors.white70
                           : Colors.black,
                     ),
                   )
@@ -271,7 +275,10 @@ class ChatScreenState extends State<ChatScreen> {
         return ListView(
           reverse: true,
           children: reversedMessages.map((m) {
-            return _buildChatBubbleRow(m);
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 5.0, left: 2, right: 2),
+              child: _buildChatBubbleRow(m),
+            );
           }).toList(),
           controller: msgListController,
         );
@@ -289,144 +296,199 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget _buildMessageComposeBar(BuildContext context) {
     return Container(
-      color: Colors.grey[100],
+      color: Colors.transparent,
       child: Row(
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              icon: Icon(
-                Icons.add,
-                color: AppColor.primaryColor,
-              ),
-              onPressed: () {
-                showCupertinoModalPopup(
-                  context: context,
-                  builder: (context) {
-                    return CupertinoActionSheet(
-                      actions: [
-                        CupertinoButton(
-                          onPressed: () {
-                            Get.back();
-                            setState(() {
-                              isBusy.value = true;
-                            });
-                            pickImage();
-                          },
-                          child: Text(
-                            "Image",
-                            style: TextStyle(color: AppColor.primaryColor),
+            child: PhysicalModel(
+              color: Colors.black.withOpacity(0.0),
+              elevation: 3,
+              shadowColor: Colors.grey,
+              borderRadius: BorderRadius.circular(23),
+              child: CircleAvatar(
+                radius: 23,
+                backgroundColor: AppColor.primaryColor,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    showCupertinoModalPopup(
+                      context: context,
+                      builder: (context) {
+                        return CupertinoActionSheet(
+                          actions: [
+                            CupertinoButton(
+                              onPressed: () {
+                                Get.back();
+                                setState(() {
+                                  isBusy.value = true;
+                                });
+                                pickImage();
+                              },
+                              child: Text(
+                                "Image",
+                                style: TextStyle(color: AppColor.primaryColor),
+                              ),
+                            ),
+                            CupertinoButton(
+                              onPressed: () {
+                                Get.back();
+                                Get.defaultDialog(
+                                  title: 'Enter Amount',
+                                  backgroundColor: Colors.grey[100],
+                                  content: TextField(
+                                    controller: paymentTEC,
+                                    keyboardType:
+                                        TextInputType.numberWithOptions(
+                                      signed: false,
+                                      decimal: true,
+                                    ),
+                                  ),
+                                  actions: [
+                                    FlatButton(
+                                      onPressed: () {
+                                        Get.back();
+                                      },
+                                      child: Text(
+                                        "Cancel",
+                                      ),
+                                    ),
+                                    FlatButton(
+                                      onPressed: () async {
+                                        try {
+                                          double.parse(paymentTEC.text.trim());
+                                          // if parsable then continue, else show error
+
+                                          // TODO: deduct amount
+
+                                          await provider.sendMessage(
+                                              widget.order.messageDocId,
+                                              paymentTEC.text.trim(),
+                                              MessageType.money,
+                                              PaymentStatus.completed);
+                                          scrollMessageListToEnd();
+                                          Get.back();
+                                        } catch (e) {
+                                          Get.defaultDialog(
+                                            title: "Invalid Amount",
+                                            backgroundColor: Colors.grey[100],
+                                            content: Text(
+                                                "The amount you entered is invalid"),
+                                          );
+                                        }
+                                      },
+                                      child: Text("Confirm"),
+                                    ),
+                                  ],
+                                );
+                              },
+                              child: Text(
+                                "Payment",
+                                style: TextStyle(color: AppColor.primaryColor),
+                              ),
+                            ),
+                          ],
+                          cancelButton: CupertinoButton(
+                            child: Text(
+                              "Cancel",
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onPressed: () {
+                              Get.back();
+                            },
                           ),
-                        ),
-                        // CupertinoButton(
-                        //   onPressed: () {
-                        //     Get.back();
-                        //     Get.defaultDialog(
-                        //       title: 'Enter Amount',
-                        //       content: TextField(
-                        //         controller: paymentTEC,
-                        //         keyboardType: TextInputType.numberWithOptions(
-                        //           signed: false,
-                        //           decimal: true,
-                        //         ),
-                        //       ),
-                        //       actions: [
-                        //         FlatButton(
-                        //           onPressed: () {
-                        //             Get.back();
-                        //           },
-                        //           child: Text(
-                        //             "Cancel",
-                        //           ),
-                        //         ),
-                        //         FlatButton(
-                        //           onPressed: () async {
-                        //             try {
-                        //               double.parse(paymentTEC.text.trim());
-                        //               // if parsable then continue, else show error
-
-                        //               // TODO: deduct amount
-
-                        //               await provider.sendMessage(
-                        //                   widget.order.messageDocId,
-                        //                   paymentTEC.text.trim(),
-                        //                   MessageType.money,
-                        //                   PaymentStatus.completed);
-                        //               scrollMessageListToEnd();
-                        //               Get.back();
-                        //             } catch (e) {
-                        //               Get.defaultDialog(
-                        //                 title: "Invalid Amount",
-                        //                 content: Text(
-                        //                     "The amount you entered is invalid"),
-                        //               );
-                        //             }
-                        //           },
-                        //           child: Text("Confirm"),
-                        //         ),
-                        //       ],
-                        //     );
-                        //   },
-                        //   child: Text(
-                        //     "Payment",
-                        //     style: TextStyle(color: AppColor.primaryColor),
-                        //   ),
-                        // ),
-                      ],
-                      cancelButton: CupertinoButton(
-                        child: Text(
-                          "Cancel",
-                          style: TextStyle(color: Colors.red),
-                        ),
-                        onPressed: () {
-                          Get.back();
-                        },
-                      ),
+                        );
+                      },
                     );
                   },
-                );
-              },
+                ),
+              ),
             ),
           ),
           Expanded(
-            child: TextFormField(
-                controller: textEditingController,
-                onChanged: (s) {
-                  if (s.isNotEmpty && isTextEmpty) {
-                    setState(() {
-                      isTextEmpty = false;
-                    });
-                  } else if (s.isEmpty && !isTextEmpty) {
-                    setState(() {
-                      isTextEmpty = true;
-                    });
-                  }
-                },
-                decoration: const InputDecoration(
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 0.0, horizontal: 10),
-                )),
+            child: PhysicalModel(
+              color: Colors.black.withOpacity(0.0),
+              elevation: 3,
+              shadowColor: Colors.grey,
+              borderRadius: BorderRadius.circular(25),
+              child: TextFormField(
+                  controller: textEditingController,
+                  onChanged: (s) {
+                    if (s.isNotEmpty && isTextEmpty) {
+                      setState(() {
+                        isTextEmpty = false;
+                      });
+                    } else if (s.isEmpty && !isTextEmpty) {
+                      setState(() {
+                        isTextEmpty = true;
+                      });
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    hintText: "Message",
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(25),
+                      ),
+                      borderSide: BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
+                      ),
+                    ),
+                    // enabledBorder: InputBorder.none,
+                    // errorBorder: InputBorder.none,
+                    // disabledBorder: InputBorder.none,
+                    border: OutlineInputBorder(
+                      borderRadius: const BorderRadius.all(
+                        const Radius.circular(25),
+                      ),
+                      borderSide: BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
+                      ),
+                    ),
+                    filled: true,
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 0.0, horizontal: 10),
+                  )),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              icon: Icon(
-                Icons.send,
-                color: isTextEmpty ? Colors.grey : AppColor.primaryColor,
+            child: PhysicalModel(
+              color: Colors.black.withOpacity(0.0),
+              elevation: 3,
+              shadowColor: Colors.grey,
+              borderRadius: BorderRadius.circular(23),
+              child: CircleAvatar(
+                radius: 23,
+                backgroundColor:
+                    isTextEmpty ? Colors.white : AppColor.primaryColor,
+                child: IconButton(
+                  icon: Icon(
+                    Icons.send,
+                    color: isTextEmpty ? AppColor.primaryColor : Colors.white,
+                  ),
+                  onPressed: () async {
+                    if (!isTextEmpty) {
+                      await provider.sendMessage(
+                        widget.order.messageDocId,
+                        textEditingController.text.trim(),
+                        MessageType.text,
+                        PaymentStatus.none,
+                      );
+                      scrollMessageListToEnd();
+                      textEditingController.clear();
+                      setState(() {
+                        isTextEmpty = true;
+                      });
+                    }
+                  },
+                ),
               ),
-              onPressed: () async {
-                if (!isTextEmpty) {
-                  provider.sendMessage(
-                    widget.order.messageDocId,
-                    textEditingController.text.trim(),
-                    MessageType.text,
-                    PaymentStatus.none,
-                  );
-                  textEditingController.clear();
-
-                  scrollMessageListToEnd();
-                }
-              },
             ),
           ),
         ],

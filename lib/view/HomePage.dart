@@ -7,6 +7,7 @@ import 'package:projectmworker/model/chat.dart';
 import 'package:projectmworker/model/order.dart';
 import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:projectmworker/shared/color.dart';
+import 'package:projectmworker/view/HomeHistoryScreen.dart';
 
 import '../AppPushNotification.dart';
 import 'ChatScreen.dart';
@@ -88,7 +89,7 @@ class _FirebaseNotificationScreenState
 
   @override
   Widget build(BuildContext context) {
-    return HomePage();
+    return OrderHistoryPage();
   }
 }
 
@@ -109,10 +110,10 @@ class _HomePageState extends State<HomePage> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             // end: Alignment.bottomCenter,
-            colors: [
-              AppColor.primaryColor,
-              AppColor.buttonColor,
-            ],
+            // colors: [
+            //   AppColor.primaryColor,
+            //   AppColor.buttonColor,
+            // ],
           ),
         ),
         child: Column(

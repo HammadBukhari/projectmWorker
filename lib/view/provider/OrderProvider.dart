@@ -12,6 +12,7 @@ import 'package:projectmworker/provider/LoginProvider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:background_location/background_location.dart';
+import 'package:projectmworker/view/HomeHistoryScreen.dart';
 import 'package:tuple/tuple.dart';
 import 'package:uuid/uuid.dart';
 
@@ -87,7 +88,7 @@ class OrderProvider {
           .collection("order")
           .doc(order.orderId)
           .update(order.toMap());
-      Get.offAll(HomePage());
+      Get.offAll(OrderHistoryPage());
       Get.defaultDialog(
         title: "Order Cancelled",
         content: Icon(
@@ -118,7 +119,7 @@ class OrderProvider {
           .collection("order")
           .doc(order.orderId)
           .update(order.toMap());
-      Get.offAll(HomePage());
+      Get.offAll(OrderHistoryPage());
       Get.defaultDialog(
         title: "Order Completed",
         content: Icon(

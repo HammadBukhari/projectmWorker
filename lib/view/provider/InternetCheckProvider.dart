@@ -9,7 +9,11 @@ enum InternetConnectivityStatus {
 
 class InternetCheckProvider {
   Future<bool> get isInternetAvailable async {
-    final result = await http.get("https://www.example.com");
-    return result.statusCode == 200;
+    try {
+      final result = await http.get("https://www.example.com");
+      return result.statusCode == 200;
+    } catch (e) {
+      return false;
+    }
   }
 }
