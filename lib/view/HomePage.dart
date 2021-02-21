@@ -109,11 +109,11 @@ class _HomePageState extends State<HomePage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
-            // end: Alignment.bottomCenter,
-            // colors: [
-            //   AppColor.primaryColor,
-            //   AppColor.buttonColor,
-            // ],
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColor.primaryColor,
+              AppColor.buttonColor,
+            ],
           ),
         ),
         child: Column(

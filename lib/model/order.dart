@@ -1,15 +1,18 @@
 import 'dart:convert';
 
-
 enum OrderStatus {
-  notStarted, // scheduled but there is some time left
-  findingMessenger, // scheduled time has come, now finding a messenger
-  findingMessengerFailed, // finding failed
-  messengerOnWay, // finding success, messenger on the way
+  findingMessenger,
+  messengerAssigned,
+  paymentDone,
+  waitingForScheduleArrival,
+  waitingForMessengerApprovalOnTimeArrival,
+  messengerOnWay,
+  findingMessengerFailed,
   messengerReachedSource,
   messengerReachedDestination,
   orderCompleted,
-  orderCancelled,
+  orderCancelledByMessenger,
+  orderCancelledByUser,
 }
 
 class Order {
@@ -130,5 +133,4 @@ class Order {
   String toString() {
     return 'Order(userOrderNo: $userOrderNo, orderId: $orderId, messageDocId: $messageDocId, isNow: $isNow, userUid: $userUid, messengerId: $messengerId, messengerLat: $messengerLat, messengerLng: $messengerLng, rating: $rating, instruction: $instruction, ratingComment: $ratingComment, sourceLat: $sourceLat, sourceLng: $sourceLng, sourceLocationName: $sourceLocationName, destLat: $destLat, destlng: $destlng, destLocationName: $destLocationName, creationTime: $creationTime, scheduledTime: $scheduledTime, completedTime: $completedTime, fare: $fare, isCatered: $isCatered)';
   }
-
 }

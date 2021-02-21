@@ -91,9 +91,23 @@ class ProjectsExpansionTile extends StatelessWidget {
                       } else if (status == OrderStatus.findingMessengerFailed) {
                         statusButtonColor = Colors.red;
                         return "Failed";
-                      } else if (status == OrderStatus.orderCancelled) {
+                      } else if (status ==
+                          OrderStatus.orderCancelledByMessenger) {
                         statusButtonColor = Colors.red;
-                        return "Cancelled";
+                        return "Cancelled by Messenger";
+                      } else if (status == OrderStatus.orderCancelledByUser) {
+                        statusButtonColor = Colors.red;
+                        return "Cancelled by User";
+                      } else if (status == OrderStatus.messengerAssigned) {
+                        statusButtonColor = AppColor.primaryColor;
+                        return "MessengerAssigned";
+                      } else if (status == OrderStatus.paymentDone) {
+                        statusButtonColor = AppColor.primaryColor;
+                        return "Payment Done";
+                      } else if (status ==
+                          OrderStatus.waitingForScheduleArrival) {
+                        statusButtonColor = AppColor.primaryColor;
+                        return "Scheduled";
                       } else if (status == OrderStatus.orderCompleted) {
                         statusButtonColor = AppColor.primaryColor;
                         return "Completed";

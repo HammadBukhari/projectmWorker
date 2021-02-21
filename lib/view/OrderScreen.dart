@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:get_it/get_it.dart';
+import 'package:projectmworker/view/WaitForPayment.dart';
 
 import '../model/order.dart';
 import '../shared/color.dart';
@@ -88,15 +89,34 @@ class _OrderScreenState extends State<OrderScreen> {
                                       title: "Loading",
                                       content: CircularProgressIndicator(),
                                     );
+                                    // var isMessengerAssigned = await provider
+                                    //     .assignedMessenger(orderId);
+                                    // if (Get.isDialogOpen) Get.back();
+                                    // if (isMessengerAssigned) {
+                                    //   Navigator.push(
+                                    //     context,
+                                    //     MaterialPageRoute(
+                                    //         builder: (context) => WaitPage()),
+                                    //   );
+                                    // }
+                                    // setState(() {});
+
                                     final status =
                                         await provider.acceptOrder(orderId);
                                     if (Get.isDialogOpen) Get.back();
                                     if (status ==
                                         OrderAcceptanceStatus.success) {
                                       Fluttertoast.showToast(
-                                          msg: "Order accepted");
-                                      Get.to(OngoingOrderScreen(
-                                          order: provider.currentOrder.value));
+                                          msg: "Messenger Assigned");
+                                      if (Get.isDialogOpen) Get.back();
+                                      // if (isMessengerAssigned) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => WaitPage()),
+                                      );
+                                      // Get.to(OngoingOrderScreen(
+                                      //     order: provider.currentOrder.value));
                                     } else if (status ==
                                         OrderAcceptanceStatus.unknownError) {
                                       Fluttertoast.showToast(
@@ -114,6 +134,45 @@ class _OrderScreenState extends State<OrderScreen> {
                                               "Order accepted by another Messenger.");
                                       Get.offAll(HomePage());
                                     }
+
+                                    // var isMessengerAssigned =
+                                    //     await provider.acceptOrder(orderId);
+
+                                    // if (!isMessengerAssigned) {
+                                    //   Fluttertoast.showToast(
+                                    //       msg: "Messenger not Assigned");
+                                    // } else {
+                                    //   print("Messenger is Assigned");
+                                    //   final status =
+                                    //       await provider.acceptOrder(orderId);
+                                    //   if (Get.isDialogOpen) Get.back();
+                                    //   if (status ==
+                                    //       OrderAcceptanceStatus.success) {
+                                    //     Fluttertoast.showToast(
+                                    //         msg: "Order accepted");
+                                    //     Get.to(OngoingOrderScreen(
+                                    //         order:
+                                    //             provider.currentOrder.value));
+                                    //   } else if (status ==
+                                    //       OrderAcceptanceStatus.unknownError) {
+                                    //     Fluttertoast.showToast(
+                                    //         msg:
+                                    //             "Check your internet connection");
+                                    //   } else if (status ==
+                                    //       OrderAcceptanceStatus
+                                    //           .locationProblem) {
+                                    //     Fluttertoast.showToast(
+                                    //         msg:
+                                    //             "Unable to retrieve your location. Check your location settings");
+                                    //   } else if (status ==
+                                    //       OrderAcceptanceStatus
+                                    //           .alreadyAccepted) {
+                                    //     Fluttertoast.showToast(
+                                    //         msg:
+                                    //             "Order accepted by another Messenger.");
+                                    //     Get.offAll(HomePage());
+                                    //   }
+                                    // }
                                   },
                                   color: AppColor.primaryColor,
                                   shape: RoundedRectangleBorder(
