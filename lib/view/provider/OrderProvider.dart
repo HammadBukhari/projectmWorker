@@ -29,17 +29,17 @@ enum OrderAcceptanceStatus {
 }
 
 class OrderProvider {
+  VoidCallback variableForListener;
   final firestore = FirebaseFirestore.instance;
   ValueNotifier<Order> currentOrder = ValueNotifier(null);
   final loginProvider = GetIt.I<LoginProvider>();
-  StreamSubscription<Position> positionStream;
-  StreamSubscription<DocumentSnapshot> orderListener = null;
+  //StreamSubscription<Position> positionStream;
+  //StreamSubscription<DocumentSnapshot> orderListener = null;
 
   OrderProvider() {
     // add a listener for current order
-
-    // FirebaseFirestore.instance.collection("order").where("messengerId" , isEqualTo: )
-    currentOrder.addListener(() {
+    variableForListener = () {
+      print("NOT STOPED ----------- ");
       final order = currentOrder.value;
       if (order == null) return;
 
@@ -63,11 +63,14 @@ class OrderProvider {
               .collection("order")
               .doc(order.orderId)
               .update({
-            "orderStatus": OrderStatus.waitingForScheduleArrival.index
+            "orderStatus": OrderStatus.waitingForScheduleArrival.index,
+            "isCatered": true
           }).then((value) {
-            orderListener.cancel();
+            //orderListener.cancel();
+            currentOrder.removeListener(variableForListener);
             currentOrder.value = null;
-            Get.offAll(OrderHistoryPage());
+            print("-------------- Payment Sheduled!!!");
+            Get.to(OrderHistoryPage());
             BackgroundLocation.stopLocationService();
           });
         }
@@ -83,7 +86,11 @@ class OrderProvider {
           "messengerLng": location.longitude,
         });
       });
-    });
+    };
+
+    // FirebaseFirestore.instance.collection("order").where("messengerId" , isEqualTo: )
+
+    currentOrder.addListener(variableForListener);
     // check for ongoing order
     checkForOngoingOrder();
   }
@@ -131,6 +138,9 @@ class OrderProvider {
     if (order != null) {
       currentOrder.value = null;
       currentOrder.notifyListeners();
+      currentOrder.removeListener(variableForListener);
+      currentOrder.notifyListeners();
+
       order.status = OrderStatus.orderCancelledByMessenger;
       order.isCatered = true;
       await firestore
@@ -161,7 +171,9 @@ class OrderProvider {
     if (order != null) {
       currentOrder.value = null;
       currentOrder.notifyListeners();
+      currentOrder.removeListener(variableForListener);
 
+      print("Order Complete -------");
       order.status = OrderStatus.orderCompleted;
       order.isCatered = true;
       await firestore
@@ -182,68 +194,68 @@ class OrderProvider {
     return false;
   }
 
-  Future<bool> assignedMessenger(String orderId) async {
-    var docSnap =
-        await FirebaseFirestore.instance.collection("order").doc(orderId).get();
+  // Future<bool> assignedMessenger(String orderId) async {
+  //   var docSnap =
+  //       await FirebaseFirestore.instance.collection("order").doc(orderId).get();
 
-    var order = Order.fromMap(docSnap.data());
-    if (order.status != OrderStatus.findingMessenger) {
-      return false;
-    } else {
-      order.status = OrderStatus.messengerAssigned;
-      await FirebaseFirestore.instance
-          .collection("order")
-          .doc(orderId)
-          .set(order.toMap())
-          .timeout(Duration(seconds: 10), onTimeout: () {
-        return false;
-      });
-    }
-    listenOrder(orderId);
-    return true;
-  }
+  //   var order = Order.fromMap(docSnap.data());
+  //   if (order.status != OrderStatus.findingMessenger) {
+  //     return false;
+  //   } else {
+  //     order.status = OrderStatus.messengerAssigned;
+  //     await FirebaseFirestore.instance
+  //         .collection("order")
+  //         .doc(orderId)
+  //         .set(order.toMap())
+  //         .timeout(Duration(seconds: 10), onTimeout: () {
+  //       return false;
+  //     });
+  //   }
+  //   listenOrder(orderId);
+  //   return true;
+  // }
 
-  void listenOrder(String orderId) {
-    var col = FirebaseFirestore.instance.collection("order").doc(orderId);
-    orderListener = col.snapshots().listen((event) async {
-      if (event.exists) {
-        currentOrder = ValueNotifier(Order.fromMap(event.data()));
-        if (currentOrder.value.status == OrderStatus.paymentDone) {
-          if (currentOrder.value.scheduledTime == null) {
-            final status = await acceptOrder(orderId);
-            if (Get.isDialogOpen) Get.back();
-            if (status == OrderAcceptanceStatus.success) {
-              Fluttertoast.showToast(msg: "Order accepted");
-              Get.to(OngoingOrderScreen(order: currentOrder.value));
-            } else if (status == OrderAcceptanceStatus.unknownError) {
-              Fluttertoast.showToast(msg: "Check your internet connection");
-            } else if (status == OrderAcceptanceStatus.locationProblem) {
-              Fluttertoast.showToast(
-                  msg:
-                      "Unable to retrieve your location. Check your location settings");
-            } else if (status == OrderAcceptanceStatus.alreadyAccepted) {
-              Fluttertoast.showToast(
-                  msg: "Order accepted by another Messenger.");
-              Get.offAll(HomePage());
-            }
-          } else {
-            currentOrder.value.status = OrderStatus.waitingForScheduleArrival;
-            FirebaseFirestore.instance
-                .collection("order")
-                .doc(orderId)
-                .set(currentOrder.value.toMap())
-                .then((value) {
-              orderListener.cancel();
-              currentOrder.value = null;
-              Get.offAll(OrderHistoryPage());
-            });
-          }
-          // acceptOrder(orderId);
-          currentOrder.notifyListeners();
-        }
-      }
-    });
-  }
+  // void listenOrder(String orderId) {
+  //   var col = FirebaseFirestore.instance.collection("order").doc(orderId);
+  //   orderListener = col.snapshots().listen((event) async {
+  //     if (event.exists) {
+  //       currentOrder = ValueNotifier(Order.fromMap(event.data()));
+  //       if (currentOrder.value.status == OrderStatus.paymentDone) {
+  //         if (currentOrder.value.scheduledTime == null) {
+  //           final status = await acceptOrder(orderId);
+  //           if (Get.isDialogOpen) Get.back();
+  //           if (status == OrderAcceptanceStatus.success) {
+  //             Fluttertoast.showToast(msg: "Order accepted");
+  //             Get.to(OngoingOrderScreen(order: currentOrder.value));
+  //           } else if (status == OrderAcceptanceStatus.unknownError) {
+  //             Fluttertoast.showToast(msg: "Check your internet connection");
+  //           } else if (status == OrderAcceptanceStatus.locationProblem) {
+  //             Fluttertoast.showToast(
+  //                 msg:
+  //                     "Unable to retrieve your location. Check your location settings");
+  //           } else if (status == OrderAcceptanceStatus.alreadyAccepted) {
+  //             Fluttertoast.showToast(
+  //                 msg: "Order accepted by another Messenger.");
+  //             Get.offAll(HomePage());
+  //           }
+  //         } else {
+  //           currentOrder.value.status = OrderStatus.waitingForScheduleArrival;
+  //           FirebaseFirestore.instance
+  //               .collection("order")
+  //               .doc(orderId)
+  //               .set(currentOrder.value.toMap())
+  //               .then((value) {
+  //             //orderListener.cancel();
+  //             currentOrder.value = null;
+  //             Get.offAll(OrderHistoryPage());
+  //           });
+  //         }
+  //         // acceptOrder(orderId);
+  //         currentOrder.notifyListeners();
+  //       }
+  //     }
+  //   });
+  // }
 
   Future<OrderAcceptanceStatus> acceptOrder(String orderId) async {
     print("accept order => $orderId");
@@ -259,7 +271,11 @@ class OrderProvider {
 
       if (position == null) return OrderAcceptanceStatus.locationProblem;
       BackgroundLocation.startLocationService();
-      if (currentOrder.value != null) return OrderAcceptanceStatus.unknownError;
+      if (currentOrder.value != null) {
+        print("Order is not NULLLLL -------- ");
+        return OrderAcceptanceStatus.unknownError;
+      }
+      print("Order is NULLLLL -------- ");
 
       final result = await firestore
           .runTransaction<Tuple2<OrderAcceptanceStatus, Order>>((t) async {
@@ -270,6 +286,7 @@ class OrderProvider {
           return Tuple2<OrderAcceptanceStatus, Order>(
               OrderAcceptanceStatus.alreadyAccepted, null);
         }
+        print("Status is Finding Messenger -------- ");
         order.messengerId = loginProvider.messenger.uid;
         order.status = OrderStatus.messengerAssigned;
         order.messengerLat = position.latitude;
@@ -301,7 +318,9 @@ class OrderProvider {
         return Tuple2<OrderAcceptanceStatus, Order>(
             OrderAcceptanceStatus.success, order);
       }, timeout: Duration(seconds: 10));
+
       if (result.item1 == OrderAcceptanceStatus.success) {
+        print("Transection Success -------- ");
         currentOrder.value = result.item2;
         firestore
             .collection("order")
@@ -318,7 +337,38 @@ class OrderProvider {
       }
       return result.item1;
     } catch (e) {
+      print("Exception Caught -------- ");
       return OrderAcceptanceStatus.unknownError;
+    }
+  }
+
+  Future<bool> acceptOrderOnSceduleArrival(String orderId) async {
+    try {
+      Position position = await getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.bestForNavigation);
+
+      final PermissionStatus status =
+          await BackgroundLocation.checkPermissions();
+      if (status != PermissionStatus.granted) {
+        return false;
+      }
+
+      if (position == null) return false;
+      BackgroundLocation.startLocationService();
+      await FirebaseFirestore.instance
+          .collection("order")
+          .doc(orderId)
+          .update({"orderStatus": OrderStatus.messengerOnWay.index});
+      firestore.collection("order").doc(orderId).snapshots().forEach((element) {
+        if (element.exists) {
+          currentOrder.value = Order.fromMap(element.data());
+          currentOrder.notifyListeners();
+        }
+      });
+      return true;
+    } catch (e) {
+      print(e);
+      return false;
     }
   }
 

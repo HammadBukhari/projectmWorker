@@ -40,6 +40,32 @@ class _OrderScreenState extends State<OrderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (order == null) return Center(child: CircularProgressIndicator());
+    if (order.status == OrderStatus.waitingForMessengerApprovalOnTimeArrival) {
+      return Container(
+        color: Colors.white,
+        child: Center(
+          child: Container(
+            height: 50,
+            child: RaisedButton(
+                elevation: 10,
+                color: AppColor.primaryColor,
+                onPressed: () async {
+                  var isStarted =
+                      await provider.acceptOrderOnSceduleArrival(orderId);
+                  if (isStarted) {
+                    Get.offAll(
+                        OngoingOrderScreen(order: provider.currentOrder.value));
+                  } else {}
+                },
+                child: Text(
+                  "Start Delivery",
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                )),
+          ),
+        ),
+      );
+    }
     return Container(
       color: AppColor.primaryColor,
       child: SafeArea(
