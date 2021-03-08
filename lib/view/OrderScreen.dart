@@ -56,7 +56,9 @@ class _OrderScreenState extends State<OrderScreen> {
                   if (isStarted) {
                     Get.offAll(
                         OngoingOrderScreen(order: provider.currentOrder.value));
-                  } else {}
+                  } else {
+                    print("not accepted");  
+                  }
                 },
                 child: Text(
                   "Start Delivery",

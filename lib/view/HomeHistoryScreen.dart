@@ -513,10 +513,11 @@ class OrderHistoryState extends State<OrderHistoryPage> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Image(
-                          image: AssetImage(
-                              "assets/images/order_history_icon.png"),
-                        ),
+                        // Image(
+                        //   image: AssetImage(
+                        //       "assets/images/order_history_icon.png"),
+                        // ),
+                        Icon(Icons.home),
                         SizedBox(
                           height: 20,
                         ),
